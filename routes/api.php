@@ -19,7 +19,7 @@ use App\Http\Controllers\AuthorController;
 
 // Book Routes
 
-Route::prefix('/book')->group(function(){
+Route::prefix('/books')->group(function(){
     Route::get('/', [BookController::class, 'index']);
     Route::get('/{id}', [BookController::class, 'show']);
     Route::post('/create', [BookController::class, 'create']);
@@ -30,7 +30,7 @@ Route::prefix('/book')->group(function(){
 });
 
 // Author Routes
-Route::prefix('/author')->group(function () {
+Route::prefix('/authors')->group(function () {
     Route::get('/', [AuthorController::class, 'index']);
     Route::get('/{id}', [AuthorController::class, 'show']);
     Route::post('/create', [AuthorController::class, 'create']);
@@ -39,7 +39,7 @@ Route::prefix('/author')->group(function () {
 });
 
 // User routes
-Route::prefix('/user')->group(function () {
+Route::prefix('/users')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/{id}', [UserController::class, 'show']);
     Route::get('/count', [UserController::class, 'count']);
