@@ -21,20 +21,22 @@ class AuthorController extends Controller
     }
 
     // Get a single author by ID
-    public function show(int $id) {
-        $author = Author::find($id);
+    public function show(int $id)
+{
+    $author = Author::with('books')->find($id);
 
-        if ($author) {
-            return response()->json([
-                'message' => 'Author found!',
-                'data' => $author
-            ], 200);
-        }
-
+    if (!$author) {
         return response()->json([
             'message' => 'Author not found!'
         ], 404);
     }
+
+    return response()->json([
+        'message' => 'Author found!',
+        'data' => $author
+    ], 200);
+}
+
 
     // Count all authors
     public function count() {

@@ -6,21 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-       Schema::create('books', function (Blueprint $table) {
-    $table->id();
-    $table->string('title');
-    $table->unsignedBigInteger('author_id');
-    $table->string('isbn')->unique();
-    $table->timestamps();
-
-    $table->foreign('author_id')->references('id')->on('authors')->onDelete('cascade');
-});
-
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -31,3 +32,4 @@ return new class extends Migration
         Schema::dropIfExists('personal_access_tokens');
     }
 };
+
