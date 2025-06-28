@@ -3,32 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminste\Support\Facades\Validator;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
-    public $users = [
-        ['id' => 1, 'name' => 'Alice', 'email' => 'alice@example.com'],
-        ['id' => 2, 'name' => 'Bob', 'email' => 'bob@example.com']
-    ];
-
-    private function find($users, $id) {
-        foreach ($users as $user) {
-            if ($user['id'] == $id) {
-                return $user;
-            }
-        }
-        return null;
-    }
-
+    // Show all users
     public function index() {
+        $users = User::all();
+
         return response()->json([
             'message' => 'Users retrieved successfully!',
-            'data' => $this->users
+            'data' => $users
         ], 200);
     }
 
+    // Show a user by ID
     public function show(int $id) {
-        $user = $this->find($this->users, $id);
+        $user = User::find($id);
 
         if ($user) {
             return response()->json([
@@ -42,44 +36,59 @@ class UserController extends Controller
         ], 404);
     }
 
+    // Count users
     public function count() {
+        $count = User::count();
+
         return response()->json([
             'message' => 'User count retrieved successfully!',
-            'data' => count($this->users)
+            'data' => $count
         ], 200);
     }
 
-    public function create(Request $request) {
-        return response()->json([
-            'message' => 'User created successfully!',
-            'data' => [
-                'name' => $request->name,
-                'email' => $request->email,
-            ],
-        ], 201);
+    // Create a new user
+        
+    public function create(StoreUserRequest $request) {
+        $user = User::create(request->all());
+        return response()-> json([
+            "message" => "Success",
+            "data" => $user,
+        ]);
+
+        if (validators->fails()){
+            return $validator()-> message();
+        }
+
+    $user = User::create(request ->all());
+    return response -> json ([
+        "message"=> "Success",
+        "data" => $user
+
+    ]);
+
     }
 
-    public function edit(Request $request, int $id) {
-        $user = $this->find($this->users, $id);
+    // Update an existing user
+    public function edit(UpdateUserRequest $request, int $id) {
+        $user = User::find($id);
 
         if (!$user) {
             return response()->json([
                 'message' => 'User not found!'
             ], 404);
         }
+
+        $user -> update ($request -> validated());
 
         return response()->json([
             'message' => 'User updated successfully!',
-            'id' => $id,
-            'data' => [
-                'name' => $request->name,
-                'email' => $request->email,
-            ],
+            'data' => $user
         ], 200);
     }
 
+    // Delete a user
     public function delete(int $id) {
-        $user = $this->find($this->users, $id);
+        $user = User::find($id);
 
         if (!$user) {
             return response()->json([
@@ -87,9 +96,11 @@ class UserController extends Controller
             ], 404);
         }
 
+        $user->delete();
+
         return response()->json([
-            'message' => 'User deleted (simulated) successfully!',
-            'id' => $id,
+            'message' => 'User deleted successfully!',
+            'id' => $id
         ], 200);
     }
 }

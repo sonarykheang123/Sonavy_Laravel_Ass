@@ -3,32 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Author;
+use App\Http\Requests\StoreAuthorRequest;
+use App\Http\Requests\UpdateAuthorRequest;
+use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
-    public $authors = [
-        ['id' => 1, 'name' => 'George Orwell'],
-        ['id' => 2, 'name' => 'Aldous Huxley']
-    ];
-
-    private function find($authors, $id) {
-        foreach ($authors as $author) {
-            if ($author['id'] == $id) {
-                return $author;
-            }
-        }
-        return null;
-    }
-
+    // Get all authors
     public function index() {
+        $authors = Author::all();
+
         return response()->json([
             'message' => 'Authors retrieved successfully!',
-            'data' => $this->authors
+            'data' => $authors
         ], 200);
     }
 
+    // Get a single author by ID
     public function show(int $id) {
-        $author = $this->find($this->authors, $id);
+        $author = Author::find($id);
 
         if ($author) {
             return response()->json([
@@ -42,42 +36,63 @@ class AuthorController extends Controller
         ], 404);
     }
 
+    // Count all authors
     public function count() {
+        $count = Author::count();
+
         return response()->json([
             'message' => 'Author count retrieved successfully!',
-            'data' => count($this->authors)
+            'data' => $count
         ], 200);
     }
 
-    public function create(Request $request) {
-        return response()->json([
-            'message' => 'Author created successfully!',
-            'data' => [
-                'name' => $request->name,
-            ],
-        ], 201);
+    // Create a new author
+    public function create(StoreAuthorRequest $request) {
+        // Just check if name is given, no formal validation
+        $author = Author::create($request->all());
+        return response()-> json([
+            "message"=> "Success",
+            "data"=> $author
+        ]);
+        
+
+        if($validator->fails()){
+            return $validator-> message();
+        }
+
+        $author = Author::create(request->all());
+        return response->json([
+            "message" => "Success",
+            "data"  => $author
+        ]);
     }
 
-    public function edit(Request $request, int $id) {
-        $author = $this->find($this->authors, $id);
+        
+
+        // Edit (update) an author
+    public function edit(UpdateAuthorRequest $request, int $id)
+    {
+        $author = author::find($id);
 
         if (!$author) {
             return response()->json([
                 'message' => 'Author not found!'
             ], 404);
         }
+
+        // Update the book with only validated data
+        $author->update($request->validated());
 
         return response()->json([
             'message' => 'Author updated successfully!',
-            'id' => $id,
-            'data' => [
-                'name' => $request->name,
-            ],
+            'data' => $author
         ], 200);
     }
 
+
+    // Delete an author
     public function delete(int $id) {
-        $author = $this->find($this->authors, $id);
+        $author = Author::find($id);
 
         if (!$author) {
             return response()->json([
@@ -85,9 +100,11 @@ class AuthorController extends Controller
             ], 404);
         }
 
+        $author->delete();
+
         return response()->json([
-            'message' => 'Author deleted (simulated) successfully!',
-            'id' => $id,
+            'message' => 'Author deleted successfully!',
+            'id' => $id
         ], 200);
     }
 }

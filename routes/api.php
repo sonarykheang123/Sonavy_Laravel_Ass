@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,15 @@ use App\Http\Controllers\AuthorController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+// Post Routes
+Route::prefix("/posts")->group(function() {
+    Route::get("/", [PostController::class, 'index'])->name("/allPosts");
+    Route::get("/count", [PostController::class, 'countPosts']);
+    Route::post("/create", [PostController::class, 'create']);
+    Route::put("/edit/{id}", [PostController::class, 'edit']);
+    Route::delete("/delete/{id}", [PostController::class, 'destroy']);
+    Route::get("/show/{id}", [PostController::class, 'show']);
+});
 // Book Routes
 
 Route::prefix('/books')->group(function(){

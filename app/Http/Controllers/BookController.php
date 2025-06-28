@@ -3,32 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Book;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facade\Validator;
 
 class BookController extends Controller
 {
-    public $books = [
-        ['id' => 1, 'title' => '1984', 'author_id' => 1, 'isbn' => '9780451524935'],
-        ['id' => 2, 'title' => 'Brave New World', 'author_id' => 2, 'isbn' => '9780060850524']
-    ];
-
-    private function find($books, $id) {
-        foreach ($books as $book) {
-            if ($book['id'] == $id) {
-                return $book;
-            }
-        }
-        return null;
-    }
-
+    // Get all books
     public function index() {
+        $books = Book::all();
+
         return response()->json([
             'message' => 'Books retrieved successfully!',
-            'data' => $this->books
+            'data' => $books
         ], 200);
     }
 
+    // Get a single book by ID
     public function show(int $id) {
-        $book = $this->find($this->books, $id);
+        $book = Book::find($id);
 
         if ($book) {
             return response()->json([
@@ -42,56 +36,71 @@ class BookController extends Controller
         ], 404);
     }
 
+    // Count all books
     public function count() {
+        $count = Book::count();
+
         return response()->json([
             'message' => 'Book count retrieved successfully!',
-            'data' => count($this->books)
+            'data' => $count
         ], 200);
     }
 
-    public function create(Request $request) {
-        return response()->json([
-            'message' => 'Book created successfully!',
-            'data' => [
-                'title' => $request->title,
-                'author_id' => $request->author_id,
-                'isbn' => $request->isbn,
-            ],
-        ], 201);
+    // Create a new book
+    public function create( StoreBookRequest $request) {
+        $book = Book::create($request-> all());
+        return response() -> json([
+            "message" => "Success",
+            "data" => $book
+        ]);
+
+       if($book-> fails()){
+        return $validator->message();
+       }
+
+       $book = Book::create($request->all());
+       return response ()->json([
+        "message" => "Success",
+        "data"  => $book
+       ]);
     }
 
-    public function edit(Request $request, int $id) {
-        $book = $this->find($this->books, $id);
 
-        if (!$book) {
-            return response()->json([
-                'message' => 'Book not found!'
-            ], 404);
-        }
+ 
 
+    // Update a book
+    public function edit(UpdateBookRequest $request, int $id) {
+    $book = Book::find($id);
+
+    if (!$book) {
         return response()->json([
-            'message' => 'Book updated successfully!',
-            'id' => $id,
-            'data' => [
-                'title' => $request->title,
-                'author_id' => $request->author_id,
-                'isbn' => $request->isbn,
-            ],
-        ], 200);
+            'message' => 'Book not found!'
+        ], 404);
     }
 
+    $book->update($request->validated());
+
+    return response()->json([
+        'message' => 'Book updated successfully',
+        'data' => $book
+    ], 200);
+}
+
+    // Delete a book
     public function delete(int $id) {
-        $book = $this->find($this->books, $id);
+        $book = Book::find($id);
 
         if (!$book) {
             return response()->json([
                 'message' => 'Book not found!'
             ], 404);
         }
+
+        $book->delete();
 
         return response()->json([
             'message' => 'Book deleted successfully!',
-            'id' => $id,
+            'id' => $id
         ], 200);
     }
 }
